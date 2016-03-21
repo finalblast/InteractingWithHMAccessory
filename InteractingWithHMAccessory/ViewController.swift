@@ -81,8 +81,10 @@ class ViewController: UIViewController {
     
     let roomName = "Bedroom"
     let accessoryName = "Cinema Room Projector"
+    let switchServiceGroupName = "All Switches"
     
     var homeManager: HMHomeManager!
+    var switchServiceGroup: HMServiceGroup?
     
     func createHome() {
         
@@ -117,7 +119,7 @@ class ViewController: UIViewController {
                 
                 println("Successfully created room")
                 self.room = room
-                self.findCinemaRoomProjectorAccessory()
+                self.findOrCreateSwitchServiceGroup()
                 
             }
             
@@ -125,16 +127,15 @@ class ViewController: UIViewController {
         
     }
     
-    func findCinemaRoomProjectorAccessory() {
+    func findOrCreateSwitchServiceGroup() {
         
-        if let accessories = room.accessories {
+        if let groups = home.serviceGroups {
             
-            for accessory in accessories as [HMAccessory] {
+            for serviceGroup in groups as [HMServiceGroup] {
                 
-                if accessory.name == accessoryName {
+                if serviceGroup.name == switchServiceGroupName {
                     
-                    println("Found the projector accessory in the room")
-                    self.projectorAccessory = accessory
+                    switchServiceGroup = serviceGroup
                     
                 }
                 
@@ -142,102 +143,212 @@ class ViewController: UIViewController {
             
         }
         
-        if self.projectorAccessory == nil {
+        if switchServiceGroup == nil {
             
-            println("Could not find the projector accessory in the room")
-            println("Starting search for all available accessories")
-            accessoryBrowser.startSearchingForNewAccessories()
+            println("Cannot find the switch service group. Creating it....")
+            home.addServiceGroupWithName(switchServiceGroupName, completionHandler: { (group, error) -> Void in
+                
+                if error != nil {
+                    
+                    println("Failed to create the service group!")
+                    
+                } else {
+                    
+                    println("Create service successfully!")
+                    self.switchServiceGroup = group
+                    self.discoverServicesInServiceGroup(group)
+                    
+                }
+                
+            })
             
         } else {
             
-            lowBrightnessOfProjector()
+            println("Found an existing switch service group!")
+            discoverServicesInServiceGroup(switchServiceGroup)
+            
+        }
+        
+        println("Finding new accessories....")
+        accessoryBrowser.startSearchingForNewAccessories()
+        
+    }
+    
+    func discoverServicesInServiceGroup(group: HMServiceGroup!) {
+        
+        addAllSwitchesToServiceGroup(group, completionHandler: { (error) -> Void in
+            
+            if error != nil {
+                
+                println("Failed to add the switch to the service group!")
+                
+            } else {
+                
+                self.enumerateServicesInServiceGroup(group)
+                
+            }
+            
+        })
+        
+        enumerateServicesInServiceGroup(group)
+        
+    }
+    
+    func enumerateServicesInServiceGroup(group: HMServiceGroup!) {
+        
+        println("Discovering all the services in this service group....")
+        if let services = group.services {
+            
+            for service in services as [HMService] {
+                
+                println(service)
+                
+            }
             
         }
         
     }
     
-    func lowBrightnessOfProjector() {
+    func addAllSwitchesToServiceGroup(group: HMServiceGroup!, completionHandler: (error: NSError!) -> Void) {
         
-        var brightnessOfProjectorCharacteristic: HMCharacteristic!
-        println("Finding the brightness characteristic of the project...")
-        for service in projectorAccessory.services as [HMService] {
+        if let accessories = room.accessories {
             
-            for characteristic in service.characteristics as [HMCharacteristic] {
+            for accessory in accessories as [HMAccessory] {
                 
-                if characteristic.characteristicType == HMCharacteristicTypeBrightness {
+                if let services = accessory.services {
                     
-                    println("Found it!")
-                    brightnessOfProjectorCharacteristic = characteristic
-                    
-                }
-                
-            }
-            
-        }
-        
-        if brightnessOfProjectorCharacteristic == nil {
-            
-            println("Cannot find it!")
-            
-        } else {
-            
-            if brightnessOfProjectorCharacteristic.isReadable() == false {
-                
-                println("Cannot read the value of brightness characteristic!")
-                return
-                
-            }
-            
-            println("Reading the value of the brightness characteristic....")
-            brightnessOfProjectorCharacteristic.readValueWithCompletionHandler({ (error) -> Void in
-                
-                if error != nil {
-                    
-                    println("Cannot read the brightness value!")
-                    
-                } else {
-                    
-                    println("Read the brightness value. Setting it now....")
-                    if brightnessOfProjectorCharacteristic.isWritable() {
+                    for service in services as [HMService] {
                         
-                        let newValue = brightnessOfProjectorCharacteristic.value as Float - 1
-                        brightnessOfProjectorCharacteristic.writeValue(newValue, completionHandler: { (error) -> Void in
+                        if (service.name as NSString).rangeOfString("switch", options: NSStringCompareOptions.CaseInsensitiveSearch).location != NSNotFound {
                             
-                            if error != nil {
-                                
-                                println("Failed to setting the value of brightness!")
-                                
-                            } else {
-                                
-                                println("Successfully to setting the brightness value!")
-                                
-                            }
+                            println("Found a switch service, adding into group....")
+                            group.addService(service, completionHandler: completionHandler)
                             
-                        })
-                        
-                    } else {
-                        
-                        println("Cannot write the brightness value!")
+                        }
                         
                     }
                     
                 }
-                
-            })
-         
-            if brightnessOfProjectorCharacteristic.value is Float {
-                
-                
-                
-            } else {
-                
-                println("The value of the brightness is not Float. Cannot set it!")
                 
             }
             
         }
         
     }
+    
+//    func findCinemaRoomProjectorAccessory() {
+//        
+//        if let accessories = room.accessories {
+//            
+//            for accessory in accessories as [HMAccessory] {
+//                
+//                if accessory.name == accessoryName {
+//                    
+//                    println("Found the projector accessory in the room")
+//                    self.projectorAccessory = accessory
+//                    
+//                }
+//                
+//            }
+//            
+//        }
+//        
+//        if self.projectorAccessory == nil {
+//            
+//            println("Could not find the projector accessory in the room")
+//            println("Starting search for all available accessories")
+//            accessoryBrowser.startSearchingForNewAccessories()
+//            
+//        } else {
+//            
+//            lowBrightnessOfProjector()
+//            
+//        }
+//        
+//    }
+//    
+//    func lowBrightnessOfProjector() {
+//        
+//        var brightnessOfProjectorCharacteristic: HMCharacteristic!
+//        println("Finding the brightness characteristic of the project...")
+//        for service in projectorAccessory.services as [HMService] {
+//            
+//            for characteristic in service.characteristics as [HMCharacteristic] {
+//                
+//                if characteristic.characteristicType == HMCharacteristicTypeBrightness {
+//                    
+//                    println("Found it!")
+//                    brightnessOfProjectorCharacteristic = characteristic
+//                    
+//                }
+//                
+//            }
+//            
+//        }
+//        
+//        if brightnessOfProjectorCharacteristic == nil {
+//            
+//            println("Cannot find it!")
+//            
+//        } else {
+//            
+//            if brightnessOfProjectorCharacteristic.isReadable() == false {
+//                
+//                println("Cannot read the value of brightness characteristic!")
+//                return
+//                
+//            }
+//            
+//            println("Reading the value of the brightness characteristic....")
+//            brightnessOfProjectorCharacteristic.readValueWithCompletionHandler({ (error) -> Void in
+//                
+//                if error != nil {
+//                    
+//                    println("Cannot read the brightness value!")
+//                    
+//                } else {
+//                    
+//                    println("Read the brightness value. Setting it now....")
+//                    if brightnessOfProjectorCharacteristic.isWritable() {
+//                        
+//                        let newValue = brightnessOfProjectorCharacteristic.value as Float - 1
+//                        brightnessOfProjectorCharacteristic.writeValue(newValue, completionHandler: { (error) -> Void in
+//                            
+//                            if error != nil {
+//                                
+//                                println("Failed to setting the value of brightness!")
+//                                
+//                            } else {
+//                                
+//                                println("Successfully to setting the brightness value!")
+//                                
+//                            }
+//                            
+//                        })
+//                        
+//                    } else {
+//                        
+//                        println("Cannot write the brightness value!")
+//                        
+//                    }
+//                    
+//                }
+//                
+//            })
+//         
+//            if brightnessOfProjectorCharacteristic.value is Float {
+//                
+//                
+//                
+//            } else {
+//                
+//                println("The value of the brightness is not Float. Cannot set it!")
+//                
+//            }
+//            
+//        }
+//        
+//    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -270,7 +381,7 @@ extension ViewController: HMHomeManagerDelegate, HMAccessoryBrowserDelegate {
                         
                         println("Found room")
                         self.room = room
-                        findCinemaRoomProjectorAccessory()
+                        findOrCreateSwitchServiceGroup()
                         
                     }
                     
@@ -322,7 +433,8 @@ extension ViewController: HMHomeManagerDelegate, HMAccessoryBrowserDelegate {
                         } else {
                             
                             println("Successfully assigned to the room")
-                            self.lowBrightnessOfProjector()
+//                            self.findOrCreateSwitchServiceGroup()
+//                            self.lowBrightnessOfProjector()
                             
                         }
                         
