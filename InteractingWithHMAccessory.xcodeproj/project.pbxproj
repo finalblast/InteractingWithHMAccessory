@@ -13,6 +13,7 @@
 		500CF5371C9F87470074656F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 500CF5361C9F87470074656F /* Images.xcassets */; };
 		500CF53A1C9F87470074656F /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 500CF5381C9F87470074656F /* LaunchScreen.xib */; };
 		500CF5461C9F87480074656F /* InteractingWithHMAccessoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500CF5451C9F87480074656F /* InteractingWithHMAccessoryTests.swift */; };
+		500CF5511C9F88B40074656F /* HomeKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 500CF5501C9F88B40074656F /* HomeKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,8 @@
 		500CF53F1C9F87470074656F /* InteractingWithHMAccessoryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InteractingWithHMAccessoryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		500CF5441C9F87470074656F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		500CF5451C9F87480074656F /* InteractingWithHMAccessoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractingWithHMAccessoryTests.swift; sourceTree = "<group>"; };
+		500CF54F1C9F88B30074656F /* InteractingWithHMAccessory.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = InteractingWithHMAccessory.entitlements; sourceTree = "<group>"; };
+		500CF5501C9F88B40074656F /* HomeKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HomeKit.framework; path = System/Library/Frameworks/HomeKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				500CF5511C9F88B40074656F /* HomeKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,6 +63,7 @@
 		500CF5211C9F87460074656F = {
 			isa = PBXGroup;
 			children = (
+				500CF5501C9F88B40074656F /* HomeKit.framework */,
 				500CF52C1C9F87470074656F /* InteractingWithHMAccessory */,
 				500CF5421C9F87470074656F /* InteractingWithHMAccessoryTests */,
 				500CF52B1C9F87470074656F /* Products */,
@@ -77,6 +82,7 @@
 		500CF52C1C9F87470074656F /* InteractingWithHMAccessory */ = {
 			isa = PBXGroup;
 			children = (
+				500CF54F1C9F88B30074656F /* InteractingWithHMAccessory.entitlements */,
 				500CF52F1C9F87470074656F /* AppDelegate.swift */,
 				500CF5311C9F87470074656F /* ViewController.swift */,
 				500CF5331C9F87470074656F /* Main.storyboard */,
@@ -161,6 +167,12 @@
 				TargetAttributes = {
 					500CF5291C9F87470074656F = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = T23PE6R3CV;
+						SystemCapabilities = {
+							com.apple.HomeKit = {
+								enabled = 1;
+							};
+						};
 					};
 					500CF53E1C9F87470074656F = {
 						CreatedOnToolsVersion = 6.1;
@@ -336,9 +348,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = InteractingWithHMAccessory/InteractingWithHMAccessory.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = InteractingWithHMAccessory/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -346,9 +362,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = InteractingWithHMAccessory/InteractingWithHMAccessory.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = InteractingWithHMAccessory/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};
@@ -405,6 +425,7 @@
 				500CF54B1C9F87480074656F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		500CF54C1C9F87480074656F /* Build configuration list for PBXNativeTarget "InteractingWithHMAccessoryTests" */ = {
 			isa = XCConfigurationList;
@@ -413,6 +434,7 @@
 				500CF54E1C9F87480074656F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
